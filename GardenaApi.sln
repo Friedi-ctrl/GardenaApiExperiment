@@ -1,0 +1,27 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31205.134
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "GardenaApi", "GardenaApi.csproj", "{BC44E33C-65E0-42DF-AE40-119423383632}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A3CAFFD8-0899-493C-A9A5-1C4CD24D720D}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{BC44E33C-65E0-42DF-AE40-119423383632}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BC44E33C-65E0-42DF-AE40-119423383632}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BC44E33C-65E0-42DF-AE40-119423383632}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BC44E33C-65E0-42DF-AE40-119423383632}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {92CE543E-F8D0-47A4-85BC-853EE03C1727}
+	EndGlobalSection
+EndGlobal

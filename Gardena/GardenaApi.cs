@@ -15,10 +15,9 @@ namespace GardenaApi.Gardena
         const string loginUrl = "https://api.authentication.husqvarnagroup.dev";
         const string smartUrl = "https://api.smart.gardena.dev";
         const string xApiKey = "858a768c-3bcc-49bc-8f55-cd1cf5047d9a";
-        const string grantType = "password";
         const string userName = "s-friede@gmx.de";
         const string passWord = "69678b9aa";
-        string locationId;
+        string locationId, webSocketUrl;
         RestClient client;
         LoginData GardenaLoginData = new LoginData();
 
@@ -76,8 +75,6 @@ namespace GardenaApi.Gardena
         public async Task<string> GetLocationId()
         {
             var request = new RestRequest("/v1/locations");
-            var pt = ParameterType.HttpHeader;
-
 
             request.AddHeader("accept", "application/vnd.api+json");
             request.AddHeader("X-Api-Key", xApiKey);
@@ -129,7 +126,7 @@ namespace GardenaApi.Gardena
 
             return dt;
         }
-        public async Task <string> GetWebSocketUrl()
+        public async Task<string> GetWebSocketUrl()
         {
             var body = new WebSocketJsonBody
             {
@@ -144,7 +141,6 @@ namespace GardenaApi.Gardena
             };
 
             var request = new RestRequest("/v1/websocket");
-            var pt = ParameterType.HttpHeader;
 
             request.AddHeader("accept", "application/vnd.api+json");
             request.AddHeader("X-Api-Key", xApiKey);
@@ -154,24 +150,26 @@ namespace GardenaApi.Gardena
             request.AddJsonBody(body);
 
 
+
+            var apiReturn = await GetApiData(smartUrl, request, Method.Post);
+            var debugText = "Getting web socket URL...\r\n" + apiReturn.FormatedOutput;
+            Console.WriteLine(debugText);
+
+            var cont = JObject.Parse(apiReturn.Rest.Content);
+            webSocketUrl = cont["data"]["attributes"]["url"].ToString();
+            return debugText;
+        }
+        public string StartWebSocket()
+        {
             try
             {
-                var apiReturn = await GetApiData(smartUrl, request, Method.Post);
-                var debugText = "Getting web socket URL...\r\n" + apiReturn.FormatedOutput;
-                Console.WriteLine(debugText);
-
-                var cont = JObject.Parse(apiReturn.Rest.Content);
-                var webSocketUrl = cont["data"]["attributes"]["url"].ToString();
-
-
                 WebSocket ws = new(webSocketUrl);
                 ws.OnMessage += Ws_OnMessage;
                 ws.OnOpen += Ws_OnOpen;
                 ws.OnError += Ws_OnError;
                 ws.OnClose += Ws_OnClose;
                 ws.ConnectAsync();
-
-                return debugText;
+                return "starting Web Socket client...";
             }
             catch (Exception e)
             {

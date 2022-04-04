@@ -44,5 +44,10 @@ namespace GardenaApi
         {
             tbResult.Text += await gl.GetWebSocketUrl(); 
         }
+
+        private void btStartWebSocket_Click(object sender, EventArgs e)
+        {
+            gl.StartWebSocket();
+        }
     }
 }

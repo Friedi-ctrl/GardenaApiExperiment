@@ -1,153 +1,297 @@
 ﻿using Newtonsoft.Json;
-using System.Linq;
+using WebSocketSharp;
 using RestSharp;
 using System.Text;
 using Newtonsoft.Json.Linq;
-using System.Collections.Generic;
 using System.Data;
+using System.Threading.Tasks;
+using System;
+using GardenaApi.Gardena.WebSocketBody;
 
 namespace GardenaApi.Gardena
 {
     class GardenaApi
     {
         const string loginUrl = "https://api.authentication.husqvarnagroup.dev";
-        const string smartURL = "https://api.smart.gardena.dev";
-        const string clientId = "8fb199ee-8dab-4df4-a1b5-7b83a0fc6a3f";
+        const string smartUrl = "https://api.smart.gardena.dev";
+        const string xApiKey = "858a768c-3bcc-49bc-8f55-cd1cf5047d9a";
         const string grantType = "password";
         const string userName = "s-friede@gmx.de";
         const string passWord = "69678b9aa";
-
+        string locationId;
+        RestClient client;
         LoginData GardenaLoginData = new LoginData();
-        SmartData GardenaSmartData = new SmartData();
+
         public GardenaApi()
         {
-            var loginData = Properties.Settings.Default.GardenaLoginData;                // read App Config data
+            var loginData = Properties.Settings.Default.GardenaLoginData;                // read App Configuration data
             GardenaLoginData = JsonConvert.DeserializeObject<LoginData>(loginData);
-
-            var SmartData = Properties.Settings.Default.GardenaSmartData;                // read App Config data
-            //GardenaSmartData = JsonConvert.DeserializeObject<SmartData>(SmartData);
+            locationId = Properties.Settings.Default.LocationId;
         }
-        
-        public string GetToken()
+
+        public async Task<string> GetToken()                                                          // get new token by new login
         {
-            var client = new RestClient(loginUrl);
+
             var request = new RestRequest("/v1/oauth2/token");
 
-            request.AddParameter("client_id", clientId);
-            request.AddParameter("grant_type", grantType);
+            request.AddParameter("client_id", xApiKey);
+            request.AddParameter("grant_type", "password");
             request.AddParameter("username", userName);
             request.AddParameter("password", passWord);
 
-            return PostRequest(client, request);
+            var apiReturn = await GetApiData(loginUrl, request, Method.Post);
+            var debugText = "\r\nLogging in and  getting new token... \r\n" + apiReturn.FormatedOutput;
+            Console.WriteLine(debugText);
+
+            if (apiReturn.Rest.IsSuccessful)
+            {
+                GardenaLoginData = JsonConvert.DeserializeObject<LoginData>(apiReturn.Rest.Content);            // convert json Response to c# classes
+                Properties.Settings.Default.GardenaLoginData = apiReturn.Rest.Content;
+                Properties.Settings.Default.Save();
+            }
+            return debugText;
         }
 
-        public string RefreshToken() // have to use within 10d after first login
+        public async Task<string> RefrechToken()                                                      // just refresh token within 10d after first login
         {
-            var client = new RestClient(loginUrl);
             var request = new RestRequest("/v1/oauth2/token");
- 
             request.AddParameter("grant_type", "refresh_token");
-            request.AddParameter("client_id", clientId);
+            request.AddParameter("client_id", xApiKey);
             request.AddParameter("refresh_token", GardenaLoginData.refresh_token);
 
-            return PostRequest(client, request);
+
+            var apiReturn = await GetApiData(loginUrl, request, Method.Post);
+            var debugText = "Refreshing Token...\r\n" + apiReturn.FormatedOutput;
+            Console.WriteLine(debugText);
+
+            if (apiReturn.Rest.IsSuccessful)
+            {
+                GardenaLoginData = JsonConvert.DeserializeObject<LoginData>(apiReturn.Rest.Content);
+                Properties.Settings.Default.GardenaLoginData = apiReturn.Rest.Content;
+                Properties.Settings.Default.Save();
+            }
+            return debugText;
         }
 
-        public string GetLocation()
+        public async Task<string> GetLocationId()
         {
-            var client = new RestClient(smartURL);
             var request = new RestRequest("/v1/locations");
             var pt = ParameterType.HttpHeader;
 
-            request.AddParameter("accept", "application/vnd.api+json", pt);
-            request.AddParameter( "X-Api-Key", clientId, pt);
-            request.AddParameter("Authorization", GardenaLoginData.token_type +" "+ GardenaLoginData.access_token , pt );
-            request.AddParameter("Authorization-Provider", GardenaLoginData.provider, pt);
 
-            return GetRequest(client, request);
+            request.AddHeader("accept", "application/vnd.api+json");
+            request.AddHeader("X-Api-Key", xApiKey);
+            request.AddHeader("Authorization", GardenaLoginData.token_type + " " + GardenaLoginData.access_token);
+            request.AddHeader("Authorization-Provider", GardenaLoginData.provider);
+
+            var apiReturn = await GetApiData(smartUrl, request, Method.Get);
+            var debugText = "Getting location ID... \r\n" + apiReturn.FormatedOutput;
+            Console.WriteLine(debugText);
+
+            if (apiReturn.Rest.IsSuccessful)
+            {
+                var cont = JObject.Parse(apiReturn.Rest.Content);
+                locationId = cont["data"][0]["id"].ToString().Trim((char)1);
+                Properties.Settings.Default.LocationId = locationId;
+                Properties.Settings.Default.Save();
+                //StartWebSocket();
+            }
+
+            return debugText;
         }
 
-        public DataTable GetStatus()
+        public async Task<DataTable>  GetStatus()
         {
-            var id = (from c in GardenaSmartData.Data select c.Id).FirstOrDefault();            // get id
-            var client = new RestClient(smartURL);
-            var request = new RestRequest("/v1/locations/" + id);
-            var pt = ParameterType.HttpHeader;
+            var request = new RestRequest("/v1/locations/" + locationId);
+            //var pt = ParameterType.HttpHeader;
 
-            request.AddParameter("accept", "application/vnd.api+json", pt);
-            request.AddParameter("Authorization", GardenaLoginData.token_type + " " + GardenaLoginData.access_token + "", pt);
-            request.AddParameter("Authorization-Provider", GardenaLoginData.provider, pt);
-            request.AddParameter("X-Api-Key", clientId, pt);
+            request.AddHeader("accept", "application/vnd.api+json");
+            request.AddHeader("Authorization", GardenaLoginData.token_type + " " + GardenaLoginData.access_token);
+            request.AddHeader("Authorization-Provider", GardenaLoginData.provider);
+            request.AddHeader("X-Api-Key", xApiKey);
 
+            var apiReturn = await GetApiData(smartUrl, request, Method.Get);
+            var debugText = "Getting Status... \r\n" + apiReturn.FormatedOutput;
+            Console.WriteLine(debugText);
 
-            var answer = GetRequest(client, request);
-            //var response = client.Get(request);
-
-            //var GardenaRespons = JObject.Parse(response.Content);
-            //var resultsFiltered = GardenaRespons["included"][2]["attributes"].Children();
-            DataTable  dt = new();
+            var GardenaRespons = JObject.Parse(apiReturn.Rest.Content);
+            var resultsFiltered = GardenaRespons["included"][2]["attributes"].Children();
+            DataTable dt = new();
             dt.Columns.Add("Description");
-            dt.Columns.Add("Value");;
+            dt.Columns.Add("Value"); ;
 
-            //foreach (JToken result in resultsFiltered)
-            //{
-            //    JProperty prop = result.ToObject<JProperty>();
-            //    JProperty values = prop.ToObject<JProperty>();
-            //    dt.Rows.Add(prop.Name, values.Value.First.First);
-            //}
+            foreach (JToken result in resultsFiltered)
+            {
+                JProperty prop = result.ToObject<JProperty>();
+                JProperty values = prop.ToObject<JProperty>();
+                dt.Rows.Add(prop.Name, values.Value.First.First);
+            }
 
             return dt;
         }
-
-        #region Request Methods
-        private string PostRequest(RestClient client, RestRequest request)
+        public async Task <string> GetWebSocketUrl()
         {
-            var requestParameter = RequestParamToSring(request); // Debug - Show request parameter
-
-            var response = client.Post(request);
-            if (response.IsSuccessful)
+            var body = new WebSocketJsonBody
             {
-                Properties.Settings.Default.GardenaLoginData = response.Content;
-                Properties.Settings.Default.Save();
+                data = new WebSocketBody.Data()
+            };
 
-                GardenaLoginData = JsonConvert.DeserializeObject<LoginData>(response.Content);            // convert json respons to c# classes
-                var reslultJson = JsonConvert.SerializeObject(GardenaLoginData, Formatting.Indented);
-                return requestParameter + "\n" + reslultJson + "\n";
+            body.data.id = "request-1";
+            body.data.type = "WEBSOCKET";
+            body.data.attributes = new WebSocketBody.Attributes
+            {
+                locationId = locationId
+            };
+
+            var request = new RestRequest("/v1/websocket");
+            var pt = ParameterType.HttpHeader;
+
+            request.AddHeader("accept", "application/vnd.api+json");
+            request.AddHeader("X-Api-Key", xApiKey);
+            request.AddHeader("Authorization", GardenaLoginData.token_type + " " + GardenaLoginData.access_token);
+            request.AddHeader("Authorization-Provider", GardenaLoginData.provider);
+            request.AddHeader("Content-Type", "application/vnd.api+json");
+            request.AddJsonBody(body);
+
+
+            try
+            {
+                var apiReturn = await GetApiData(smartUrl, request, Method.Post);
+                var debugText = "Getting web socket URL...\r\n" + apiReturn.FormatedOutput;
+                Console.WriteLine(debugText);
+
+                var cont = JObject.Parse(apiReturn.Rest.Content);
+                var webSocketUrl = cont["data"]["attributes"]["url"].ToString();
+
+
+                WebSocket ws = new(webSocketUrl);
+                ws.OnMessage += Ws_OnMessage;
+                ws.OnOpen += Ws_OnOpen;
+                ws.OnError += Ws_OnError;
+                ws.OnClose += Ws_OnClose;
+                ws.ConnectAsync();
+
+                return debugText;
             }
-            else
+            catch (Exception e)
             {
-                var strJson = JsonConvert.DeserializeObject(response.Content);
-                var res = strJson != null ? strJson.ToString() : response.ErrorMessage;
-                return res;
+                var debugText = "Error - could establish Web Socket connection.\r\n" + e;
+                Console.WriteLine(debugText);
+                return debugText;
+            }
+        }
+        private void Ws_OnOpen(object sender, EventArgs e)
+        {
+            var debugText = "\r\nGardena WebSocket opened...\r\n";
+            Console.WriteLine(debugText);
+        }
+        private void Ws_OnMessage(object sender, MessageEventArgs e)
+        {
+            try
+            {
+
+                var debugText = FormatJson(e.Data);
+                Console.WriteLine("\r\nWeb Socket Event at " + DateTime.Now + "\r\n" + debugText);
+
+                var jt = JToken.Parse(e.Data);
+
+                var type = jt["type"].ToString();
+                //if (type == "MOWER")
+                //{
+                //    mowerJson = e.Data;
+                //}
+                //else if (type == "COMMON")
+                //{
+                //    commonJson = e.Data;
+                //}
+            }
+            catch (Exception ex)
+            {
+                var debugText = "\r\nGardena WebSocket error (Ws_OnMessage event) = " + ex.Message;
+                Console.WriteLine(debugText);
+            }
+        }
+        private void Ws_OnError(object sender, ErrorEventArgs e)
+        {
+
+            var debugText = "\r\nGardena WebSocket error = " + e.Message;
+            Console.WriteLine(debugText);
+
+        }
+        private void Ws_OnClose(object sender, CloseEventArgs e)
+        {
+            if (!e.WasClean)
+            {
+                var debugText = "\r\nGardena WebSocket closing..\n" + e.Reason;
+                Console.WriteLine(debugText);
             }
         }
 
-        private string GetRequest(RestClient client, RestRequest request)
+        #region Request Methods
+        private async Task<ApiReturn> GetApiData(string url, RestRequest request, Method method)
         {
-            var requestParameter = RequestParamToSring(request); // Debug - Show request parameter
-
-            var response = client.Get(request);
-            if (response.IsSuccessful)
+            switch (method)                 // check if method is supported
             {
-                Properties.Settings.Default.GardenaSmartData = response.Content;
-                Properties.Settings.Default.Save();
+                case Method.Post:
+                    break;
+                case Method.Get:
+                    break;
+                case Method.Put:
+                    break;
+                default:
+                    Console.WriteLine("Request Method not supported!");
+                    throw new ArgumentException("Request method is not supported", nameof(method));
+            }
 
-                GardenaSmartData = JsonConvert.DeserializeObject<SmartData>(response.Content);            // convert json respons to c# classes
-                var reslultJson = JsonConvert.SerializeObject(GardenaSmartData, Formatting.Indented);
+            var requestParameter = RequestParamToSring(request); // Debug - Show request parameter
+            client = new RestClient(url);
+            RestResponse response;
+            request.Method = method;
+            response = await client.ExecuteAsync(request);
 
-                var id = JObject.Parse(response.Content);
-                _ = id["data"][0]["id"].ToString().Trim((char)1);
-
-
-                return requestParameter + "\n" + reslultJson + "\n";
+            string jConvert;
+            if (response.Content.Length > 0)
+            {
+                jConvert = FormatJson(response.Content);
             }
             else
             {
-                var resultJson = JsonConvert.DeserializeObject(response.Content);
-                var res = resultJson != null ? resultJson.ToString() : response.ErrorMessage;
-                return res;
+                jConvert = response.StatusCode.ToString();
             }
-        } 
+
+            return new ApiReturn
+            {
+                Rest = response,
+                FormatedOutput = requestParameter + "\r\n" + response.StatusDescription + "\r\n" + jConvert + "\r\n\r\n"
+            };
+        }
+
+        //private string GetRequest(RestClient client, RestRequest request)
+        //{
+        //    var requestParameter = RequestParamToSring(request); // Debug - Show request parameter
+
+        //    var response = client.g(request);
+        //    if (response.IsSuccessful)
+        //    {
+        //        Properties.Settings.Default.GardenaSmartData = response.Content;
+        //        Properties.Settings.Default.Save();
+
+        //        GardenaSmartData = JsonConvert.DeserializeObject<SmartData>(response.Content);            // convert json respons to c# classes
+        //        var reslultJson = JsonConvert.SerializeObject(GardenaSmartData, Formatting.Indented);
+
+        //        var id = JObject.Parse(response.Content);
+        //        _ = id["data"][0]["id"].ToString().Trim((char)1);
+
+
+        //        return requestParameter + "\n" + reslultJson + "\n";
+        //    }
+        //    else
+        //    {
+        //        var resultJson = JsonConvert.DeserializeObject(response.Content);
+        //        var res = resultJson != null ? resultJson.ToString() : response.ErrorMessage;
+        //        return res;
+        //    }
+        //}
         #endregion
 
         #region Debug - Show request parameter
@@ -162,5 +306,37 @@ namespace GardenaApi.Gardena
             return $"\n{sb}\n";
         }
         #endregion
+
+        static string FormatJson(string content)// (RestResponse response)
+        {
+            try
+            {
+                JToken jt = JToken.Parse(content);//(response.Content);
+                var jConvert = jt.ToString(Formatting.Indented);
+                return jConvert;
+            }
+            catch (JsonReaderException ex)
+            {
+                return ReturnJsonErrorMsg(content, ex);
+            }
+            catch (Exception ex)
+            {
+                return ReturnJsonErrorMsg(content, ex);
+            }
+        }
+        private static string ReturnJsonErrorMsg(string content, Exception ex)
+        {
+            var myData = new                                        //Create object
+            {
+                stringToConvert = content,
+                errorFormatJsonMethode = ex.Message,
+            };
+
+            string jsonData = JsonConvert.SerializeObject(myData);  //Tarnform it to Json object
+
+            Console.WriteLine(jsonData);                            //Print the Json object 
+            //HomeControlEvents.WriteWinEvent(jsonData, System.Diagnostics.EventLogEntryType.Warning);
+            return jsonData;
+        }
     }
 }

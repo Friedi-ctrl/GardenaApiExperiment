@@ -13,20 +13,20 @@ namespace GardenaApi
         }
 
         readonly Gardena.GardenaApi gl = new Gardena.GardenaApi();
-        private void btGardenaLogin_Click(object sender, EventArgs e)
+        private async void btGardenaLogin_Click(object sender, EventArgs e)
         {
-            
-            tbResult.Text += gl.GetToken();           
+
+            tbResult.Text = await gl.GetToken();
         }
 
-        private void btRefreshToken_Click(object sender, EventArgs e)
+        private async void btRefreshToken_Click(object sender, EventArgs e)
         {
-            tbResult.Text += gl.RefreshToken();
+            tbResult.Text += await gl.RefrechToken();
         }
 
-        private void btGetLactionId_Click(object sender, EventArgs e)
+        private async void btGetLocationId_Click(object sender, EventArgs e)
         {
-            tbResult.Text += gl.GetLocation();
+            tbResult.Text += await gl.GetLocationId();
         }
 
         private void btClearResultText_Click(object sender, EventArgs e)
@@ -34,10 +34,15 @@ namespace GardenaApi
             tbResult.Text = String.Empty;
         }
 
-        private void btGetState_Click(object sender, EventArgs e)
+        private async void btGetState_Click(object sender, EventArgs e)
         {
-            dgvMowerStatus.DataSource = gl.GetStatus();
+            dgvMowerStatus.DataSource = await gl.GetStatus();
             dgvMowerStatus.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
+        }
+
+        private async void btGetWsUrl_Click(object sender, EventArgs e)
+        {
+            tbResult.Text += await gl.GetWebSocketUrl(); 
         }
     }
 }

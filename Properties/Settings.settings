@@ -5,7 +5,7 @@
     <Setting Name="GardenaLoginData" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="GardenaSmartData" Type="System.String" Scope="User">
+    <Setting Name="LocationId" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
   </Settings>

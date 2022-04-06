@@ -36,7 +36,6 @@ namespace GardenaApi
             this.btGetLactionId = new System.Windows.Forms.Button();
             this.btGetState = new System.Windows.Forms.Button();
             this.dgvMowerStatus = new System.Windows.Forms.DataGridView();
-            this.btGetWsUrl = new System.Windows.Forms.Button();
             this.btStartWebSocket = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.dgvMowerStatus)).BeginInit();
             this.SuspendLayout();
@@ -48,9 +47,9 @@ namespace GardenaApi
             this.btGardenaLogin.Name = "btGardenaLogin";
             this.btGardenaLogin.Size = new System.Drawing.Size(156, 66);
             this.btGardenaLogin.TabIndex = 0;
-            this.btGardenaLogin.Text = "Gardena Login";
+            this.btGardenaLogin.Text = "Get Token";
             this.btGardenaLogin.UseVisualStyleBackColor = true;
-            this.btGardenaLogin.Click += new System.EventHandler(this.btGardenaLogin_Click);
+            this.btGardenaLogin.Click += new System.EventHandler(this.btGetToken_Click);
             // 
             // btRefreshToken
             // 
@@ -119,25 +118,14 @@ namespace GardenaApi
             this.dgvMowerStatus.Size = new System.Drawing.Size(1158, 328);
             this.dgvMowerStatus.TabIndex = 8;
             // 
-            // btGetWsUrl
-            // 
-            this.btGetWsUrl.Location = new System.Drawing.Point(677, 18);
-            this.btGetWsUrl.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
-            this.btGetWsUrl.Name = "btGetWsUrl";
-            this.btGetWsUrl.Size = new System.Drawing.Size(156, 66);
-            this.btGetWsUrl.TabIndex = 9;
-            this.btGetWsUrl.Text = "Get WebSocket Url";
-            this.btGetWsUrl.UseVisualStyleBackColor = true;
-            this.btGetWsUrl.Click += new System.EventHandler(this.btGetWsUrl_Click);
-            // 
             // btStartWebSocket
             // 
-            this.btStartWebSocket.Location = new System.Drawing.Point(841, 18);
+            this.btStartWebSocket.Location = new System.Drawing.Point(677, 18);
             this.btStartWebSocket.Margin = new System.Windows.Forms.Padding(4, 5, 4, 5);
             this.btStartWebSocket.Name = "btStartWebSocket";
             this.btStartWebSocket.Size = new System.Drawing.Size(156, 66);
             this.btStartWebSocket.TabIndex = 10;
-            this.btStartWebSocket.Text = "Start Web Sockel Client";
+            this.btStartWebSocket.Text = "Start WebSockel Client";
             this.btStartWebSocket.UseVisualStyleBackColor = true;
             this.btStartWebSocket.Click += new System.EventHandler(this.btStartWebSocket_Click);
             // 
@@ -147,7 +135,6 @@ namespace GardenaApi
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1200, 1318);
             this.Controls.Add(this.btStartWebSocket);
-            this.Controls.Add(this.btGetWsUrl);
             this.Controls.Add(this.dgvMowerStatus);
             this.Controls.Add(this.btGetState);
             this.Controls.Add(this.btGetLactionId);
@@ -173,7 +160,6 @@ namespace GardenaApi
         private System.Windows.Forms.Button btGetLactionId;
         private System.Windows.Forms.Button btGetState;
         private System.Windows.Forms.DataGridView dgvMowerStatus;
-        private System.Windows.Forms.Button btGetWsUrl;
         private System.Windows.Forms.Button btStartWebSocket;
     }
 }

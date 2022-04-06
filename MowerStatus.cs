@@ -1,14 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace GardenaApi
+﻿namespace GardenaApi
 {
-    class MowerStatus
+    internal class MowerStatus
     {
-        public string name{ get; set; }
+        public string name { get; set; }
         public string batteryLevel { get; set; }
         public string batteryState { get; set; }
         public string rfLinlLevel { get; set; }

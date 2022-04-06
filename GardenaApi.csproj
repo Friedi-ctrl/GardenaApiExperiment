@@ -97,6 +97,7 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DebugTextEventArgs.cs" />
     <Compile Include="Gardena\ApiReturn.cs" />
     <Compile Include="Form1.cs">
       <SubType>Form</SubType>

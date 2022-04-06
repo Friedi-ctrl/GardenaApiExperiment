@@ -1,10 +1,8 @@
-﻿
-
-namespace GardenaApi.Gardena
+﻿namespace GardenaApi.Gardena
 {
-    class ApiReturn
+    internal class ApiReturn
     {
-        public RestSharp.RestResponse Rest { get; set; }
+        public RestSharp.RestResponse Response { get; set; }
         public string FormatedOutput { get; set; }
     }
 }

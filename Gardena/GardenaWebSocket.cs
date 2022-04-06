@@ -1,15 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using Websocket.Client;
-
-namespace GardenaApi.Gardena
+﻿namespace GardenaApi.Gardena
 {
     internal class GardenaWebSocket
     {
-        async void StartWebSocket()
+        private async void StartWebSocket()
         {
             //var body = new WebSocketJsonBody
             //{
@@ -33,7 +26,6 @@ namespace GardenaApi.Gardena
             //request.AddParameter("Content-Type", "application/vnd.api+json", pt);
             //request.AddJsonBody(body);
 
-
             //try
             //{
             //    var apiReturn = await GetApiData(smartUrl, request, Method.Post);
@@ -42,7 +34,6 @@ namespace GardenaApi.Gardena
 
             //    var cont = JObject.Parse(apiReturn.Rest.Content);
             //    var webSocketUrl = cont["data"]["attributes"]["url"].ToString();
-
 
             //    WebSocket ws = new(webSocketUrl);
             //    ws.OnMessage += Ws_OnMessage;
@@ -57,68 +48,70 @@ namespace GardenaApi.Gardena
             //    ws.ConnectAsync();
 
             //    pingTimer.Enabled = true;
-            }
-            //catch (Exception e)
-            //{
-            //    var debugText = "Error - could establish Web Socket connection.\r\n" + e;
-            //    Console.WriteLine(debugText);
-            //    HomeControlEvents.WriteWinEvent(debugText, System.Diagnostics.EventLogEntryType.Warning);
-            //}
         }
-        //private void Ws_OnOpen(object sender, EventArgs e)
+
+        //catch (Exception e)
         //{
-        //    WebSocketRunning = true;
-        //    var debugText = "\r\nGardena WebSocket opened...\r\n";
+        //    var debugText = "Error - could establish Web Socket connection.\r\n" + e;
         //    Console.WriteLine(debugText);
+        //    HomeControlEvents.WriteWinEvent(debugText, System.Diagnostics.EventLogEntryType.Warning);
         //}
-        //private void Ws_OnMessage(object sender, MessageEventArgs e)
-        //{
-        //    try
-        //    {
-        //        TimerDelayWebSocketEvent.Stop();
-        //        TimerDelayWebSocketEvent.Start();
+    }
 
-        //        var debugText = FormatJson(e.Data);
-        //        Console.WriteLine("\r\nWeb Socket Event at " + DateTime.Now + "\r\n" + debugText);
+    //private void Ws_OnOpen(object sender, EventArgs e)
+    //{
+    //    WebSocketRunning = true;
+    //    var debugText = "\r\nGardena WebSocket opened...\r\n";
+    //    Console.WriteLine(debugText);
+    //}
+    //private void Ws_OnMessage(object sender, MessageEventArgs e)
+    //{
+    //    try
+    //    {
+    //        TimerDelayWebSocketEvent.Stop();
+    //        TimerDelayWebSocketEvent.Start();
 
-        //        var jt = JToken.Parse(e.Data);
+    //        var debugText = FormatJson(e.Data);
+    //        Console.WriteLine("\r\nWeb Socket Event at " + DateTime.Now + "\r\n" + debugText);
 
-        //        var type = jt["type"].ToString();
-        //        if (type == "MOWER")
-        //        {
-        //            mowerJson = e.Data;
-        //        }
-        //        else if (type == "COMMON")
-        //        {
-        //            commonJson = e.Data;
-        //        }
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        var debugText = "\r\nGardena WebSocket error (Ws_OnMessage event) = " + ex.Message;
-        //        Console.WriteLine(debugText);
-        //        HomeControlEvents.WriteWinEvent(debugText, System.Diagnostics.EventLogEntryType.Error); ;
-        //    }
-        //}
-        //private void Ws_OnError(object sender, ErrorEventArgs e)
-        //{
-        //    WebSocketRunning = false;
-        //    var debugText = "\r\nGardena WebSocket error = " + e.Message;
-        //    Console.WriteLine(debugText);
-        //    HomeControlEvents.WriteWinEvent(debugText, System.Diagnostics.EventLogEntryType.Error);
-        //    StartGardenaWebConnection();
-        //}
+    //        var jt = JToken.Parse(e.Data);
 
-        //private void Ws_OnClose(object sender, CloseEventArgs e)
-        //{
-        //    if (!e.WasClean)
-        //    {
-        //        WebSocketRunning = false;
-        //        var debugText = "\r\nGardena WebSocket closing..\n" + e.Reason;
-        //        Console.WriteLine(debugText);
-        //        HomeControlEvents.WriteWinEvent(debugText, System.Diagnostics.EventLogEntryType.Warning);
-        //        StartGardenaWebConnection();
-        //    }
-        //}
+    //        var type = jt["type"].ToString();
+    //        if (type == "MOWER")
+    //        {
+    //            mowerJson = e.Data;
+    //        }
+    //        else if (type == "COMMON")
+    //        {
+    //            commonJson = e.Data;
+    //        }
+    //    }
+    //    catch (Exception ex)
+    //    {
+    //        var debugText = "\r\nGardena WebSocket error (Ws_OnMessage event) = " + ex.Message;
+    //        Console.WriteLine(debugText);
+    //        HomeControlEvents.WriteWinEvent(debugText, System.Diagnostics.EventLogEntryType.Error); ;
+    //    }
+    //}
+    //private void Ws_OnError(object sender, ErrorEventArgs e)
+    //{
+    //    WebSocketRunning = false;
+    //    var debugText = "\r\nGardena WebSocket error = " + e.Message;
+    //    Console.WriteLine(debugText);
+    //    HomeControlEvents.WriteWinEvent(debugText, System.Diagnostics.EventLogEntryType.Error);
+    //    StartGardenaWebConnection();
+    //}
+
+    //private void Ws_OnClose(object sender, CloseEventArgs e)
+    //{
+    //    if (!e.WasClean)
+    //    {
+    //        WebSocketRunning = false;
+    //        var debugText = "\r\nGardena WebSocket closing..\n" + e.Reason;
+    //        Console.WriteLine(debugText);
+    //        HomeControlEvents.WriteWinEvent(debugText, System.Diagnostics.EventLogEntryType.Warning);
+    //        StartGardenaWebConnection();
+    //    }
+    //}
     //}
 }

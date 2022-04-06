@@ -1,53 +1,64 @@
 ﻿using System;
 using System.Windows.Forms;
-using GardenaApi.Gardena;
-
 
 namespace GardenaApi
 {
     public partial class Form1 : Form
     {
+        string debugText;
+        private readonly Gardena.GardenaApi gApi = new();
         public Form1()
         {
             InitializeComponent();
+            gApi.UpdateDebugText += GApi_UpdateDebugText;
         }
-
-        readonly Gardena.GardenaApi gl = new Gardena.GardenaApi();
-        private async void btGardenaLogin_Click(object sender, EventArgs e)
+        private async void btGetToken_Click(object sender, EventArgs e)
         {
-
-            tbResult.Text = await gl.GetToken();
+            await gApi.GetToken();
         }
 
         private async void btRefreshToken_Click(object sender, EventArgs e)
         {
-            tbResult.Text += await gl.RefrechToken();
+            await gApi.RefrechToken();
         }
 
         private async void btGetLocationId_Click(object sender, EventArgs e)
         {
-            tbResult.Text += await gl.GetLocationId();
-        }
-
-        private void btClearResultText_Click(object sender, EventArgs e)
-        {
-            tbResult.Text = String.Empty;
+            await gApi.GetLocationId();
         }
 
         private async void btGetState_Click(object sender, EventArgs e)
         {
-            dgvMowerStatus.DataSource = await gl.GetStatus();
+            dgvMowerStatus.DataSource = await gApi.GetStatus();
             dgvMowerStatus.Columns[1].AutoSizeMode = DataGridViewAutoSizeColumnMode.AllCells;
         }
 
-        private async void btGetWsUrl_Click(object sender, EventArgs e)
+        private async void btStartWebSocket_Click(object sender, EventArgs e)
         {
-            tbResult.Text += await gl.GetWebSocketUrl(); 
+            await gApi.StartWebSocketClient();
         }
 
-        private void btStartWebSocket_Click(object sender, EventArgs e)
+        private void btClearResultText_Click(object sender, EventArgs e)
         {
-            gl.StartWebSocket();
+            tbResult.Text = debugText = string.Empty;
+        }
+
+        private void GApi_UpdateDebugText(object sender, DebugTextEventArgs e)
+        {
+            debugText += e.DebugText;
+            AccessToTb();
+        }
+
+        void AccessToTb()
+        {
+            if (tbResult.InvokeRequired)
+            {
+                tbResult.Invoke(new MethodInvoker(AccessToTb));
+                return;
+            }
+            tbResult.Text = debugText;
+            tbResult.SelectionStart = tbResult.Text.Length;
+            tbResult.ScrollToCaret();
         }
     }
 }

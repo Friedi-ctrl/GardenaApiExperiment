@@ -1,11 +1,10 @@
-﻿
-
-namespace GardenaApi.Gardena.WebSocketBody
+﻿namespace GardenaApi.Gardena.WebSocketBody
 {
     public class WebSocketJsonBody
     {
         public Data data { get; set; }
     }
+
     public class Data
     {
         public string id { get; set; }
